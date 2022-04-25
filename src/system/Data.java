@@ -14,40 +14,53 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
-public class Data extends JFrame{
-	//継承
-	
-	static final String URL = "jdbc:mysql://root@localhost/Book_Data";
-	static final String URL2 ="jdbc:mysql://root@localhost/IT_Data";
-	static final String URL3 ="jdbc:mysql://root@localhost/Other_Data";
+//継承
+public class Data extends JFrame {
+
+
+	//文の変更不可のものの定義
+	static final String BOOK_URL = "jdbc:mysql://root@localhost/Book_Data";
+	static final String IT_URL = "jdbc:mysql://root@localhost/IT_Data";
+	static final String OTHER_URL = "jdbc:mysql://root@localhost/Other_Data";
 	static final String USERNAME = "root@localhost";
 	static final String PASSWORD = "Riru_1056";
-	
 
 	public static void main(String[] args) {
-		
+
+		//String型データ　thingStringsの定義
 		String[] thingStrings = { "本", "IT資産", "その他" };
+		
+		//インスタンスの作成（実体を持たせる）
 		JFrame frame = new JFrame("Input Dialog Example");
+		
+		//String型　returnValueの作成及び表示する質問、画面のタイトル、選択肢を設定
 		String returnValue = (String) JOptionPane.showInputDialog(frame, "見たいジャンルを選択して下さい", "在庫管理システム",
 				JOptionPane.QUESTION_MESSAGE, null, thingStrings, thingStrings[0]);
-		String thing = returnValue;
-
-		int id = 0;
-
-		if (thing == "本") {
-			id = 1;
-		}
-
-		else if (thing == "IT資産") {
-			id = 2;
-		}
-
-		else if(thing =="その他"){
-			id = 3;
-		}
 		
-		else {
+		//String型　thingの作成　thingにreturnValueの値を代入
+		String selectThing = returnValue;
+
+		//ジャンルIDの生成と代入
+		int genreId = 0;
+		
+		switch (selectThing) {
+
+		case "本": // 本を選択した場合
+			genreId = 1;
+
+			break;
+		case "IT資産": // IT資産を選択した場合
+			genreId = 2;
+
+			break;
+		case "その他": // その他を選択した場合
+			genreId = 3;
+
+			break;
 			
+		default:
+			
+			break;
 		}
 
 		Data f = new Data();
@@ -62,34 +75,137 @@ public class Data extends JFrame{
 		JPanel p = new JPanel();
 		// パネルのインスタンスの作成
 
-		JLabel l = new JLabel("Welcome to our System!!");
+		JLabel commonLabel = new JLabel("Welcome to our System!!");
 		// ウィンドウに出力させる文章を設定
 
-		l.setFont(new Font("Arial", Font.PLAIN, 40));
+		commonLabel.setFont(new Font("Arial", Font.BOLD, 40));
 
-		p.add(l);
+		p.add(commonLabel);
 		// ラベルをパネルに配置
 
-		if (id == 1) {
-			JLabel l2 = new JLabel("Book Data");
-			l2.setFont(new Font("Arial", Font.PLAIN, 35));
-			p.add(l2);
-		}
-
-		else if (id == 2) {
-			JLabel l3 = new JLabel("IT Data");
-			l3.setFont(new Font("Arial", Font.PLAIN, 35));
-			p.add(l3);
-		}
-
-		else if(id == 3){
-			JLabel l4 = new JLabel("Other Data");
-			l4.setFont(new Font("Arial", Font.PLAIN, 35));
-			p.add(l4);
-		}
-		
-		else {
+		switch (genreId) {
+		case 0://取り消しを押した場合
 			
+			JLabel cancelLabel = new JLabel("You canceled");
+			
+			cancelLabel.setFont(new Font("Arial",Font.PLAIN,30));
+			
+			p.add(cancelLabel);
+		
+		
+		case 1: //ジャンルIDが1だった場合
+			
+			JLabel bookSelectLabel = new JLabel("Book Data");
+		
+			bookSelectLabel.setFont(new Font("Arial", Font.PLAIN, 35));
+			
+			p.add(bookSelectLabel);
+			
+			//String型　bookSqlの作成　MySQLのテーブルごと読み込む
+			String bookSql = "SELECT * from book;";
+			
+			//URL,USERNAME,PASSWORDを読み込もうとする
+			try (Connection bookConnection = DriverManager.getConnection(BOOK_URL, USERNAME, PASSWORD);
+					PreparedStatement bookStatement = bookConnection.prepareStatement(bookSql);) {
+
+				//指定されたSQL文を実行し、得た値をbookResultに代入
+				ResultSet bookResult = bookStatement.executeQuery();
+
+				//SQLの実行結果からデータを取得
+				while (bookResult.next()) {
+					String bookId = bookResult.getString(1);
+					String bookName = bookResult.getString(2);
+					String bookStock = bookResult.getString(3);
+
+					JLabel bookDataLabel = new JLabel("ID:" + bookId + "NAME:" + bookName + "STOCK:" + bookStock);
+
+					bookDataLabel.setFont(new Font("Arial", Font.PLAIN, 30));
+
+					p.add(bookDataLabel);
+				}
+
+				bookResult.close();
+				bookStatement.close();
+				bookConnection.close();
+
+			} catch (SQLException bookE) {
+				
+				//実行したメソッドの時系列一覧を出力
+				bookE.printStackTrace();
+			}
+
+			break;
+
+		case 2:
+			JLabel itLabel = new JLabel("IT Data");
+			itLabel.setFont(new Font("Arial", Font.PLAIN, 35));
+			p.add(itLabel);
+
+			String itSql = "SELECT * from IT;";
+
+			try (Connection itConnection = DriverManager.getConnection(IT_URL, USERNAME, PASSWORD);
+					PreparedStatement itStatement = itConnection.prepareStatement(itSql);) {
+
+				ResultSet itResult = itStatement.executeQuery();
+
+				while (itResult.next()) {
+					String itId = itResult.getString(1);
+					String itName = itResult.getString(2);
+					String itStock = itResult.getString(3);
+
+					JLabel itDataLabel = new JLabel("ID:" + itId + "  NAME:" + itName + "  STOCK:" + itStock);
+
+					itDataLabel.setFont(new Font("Arial", Font.PLAIN, 30));
+
+					p.add(itDataLabel);
+				}
+
+				itResult.close();
+				itStatement.close();
+				itConnection.close();
+
+			} catch (SQLException itE) {
+
+				itE.printStackTrace();
+			}
+
+			break;
+
+		case 3:
+			JLabel otherLabel = new JLabel("Other Data");
+			otherLabel.setFont(new Font("Arial", Font.PLAIN, 35));
+			p.add(otherLabel);
+
+			String otherSql = "SELECT * from other;";
+
+			try (Connection otherConnection = DriverManager.getConnection(OTHER_URL, USERNAME, PASSWORD);
+					PreparedStatement otherStatement = otherConnection.prepareStatement(otherSql);) {
+
+				ResultSet otherResult = otherStatement.executeQuery();
+
+				while (otherResult.next()) {
+					String otherId = otherResult.getString(1);
+					String otherName = otherResult.getString(2);
+					String otherStock = otherResult.getString(3);
+
+					JLabel otherDataLabel = new JLabel(
+							"ID:" + otherId + "  NAME:" + otherName + "  STOCK:" + otherStock);
+
+					otherDataLabel.setFont(new Font("Arial", Font.PLAIN, 30));
+
+					p.add(otherDataLabel);
+				}
+
+				otherResult.close();
+				otherStatement.close();
+				otherConnection.close();
+
+			} catch (SQLException otherE) {
+
+				otherE.printStackTrace();
+			}
+
+			break;
 		}
 
 		c.add(p, BorderLayout.CENTER);
@@ -103,116 +219,7 @@ public class Data extends JFrame{
 
 		f.setSize(600, 800);
 		// ウィンドウのサイズを設定
-		
-		if(id == 1) {
-		String sql = "SELECT * from book;";
-		
-		try( Connection connection = DriverManager.getConnection(URL,USERNAME,PASSWORD);
-				PreparedStatement statement = connection.prepareStatement(sql); ){
-			
-			ResultSet result = statement.executeQuery();
-			
-			while(result.next()) {
-			String book_id = result.getString(1);
-			String book_name = result.getString(2);
-			String book_stock = result.getString(3);
-			
-			JLabel l5 = new JLabel("ID:"+book_id +"  NAME:"+book_name +"  STOCK:"+book_stock);
-			
-			l5.setFont(new Font("Arial", Font.PLAIN, 30));
-			
-			p.add(l5);
-			}
-			
-			result.close();
-			statement.close();
-			connection.close();
-			
-			
-		} catch (SQLException e) {
-			
-			e.printStackTrace();
-		}
-		
-		}
-		
-		else if(id ==2) {
-			String sql2 = "SELECT * from IT;";
-			
-			try( Connection connection = DriverManager.getConnection(URL2,USERNAME,PASSWORD);
-					PreparedStatement statement = connection.prepareStatement(sql2); ){
-				
-				ResultSet result = statement.executeQuery();
-				
-				while(result.next()) {
-				String IT_id = result.getString(1);
-				String IT_name = result.getString(2);
-				String IT_stock = result.getString(3);
-				
-				JLabel l5 = new JLabel("ID:"+IT_id+"  NAME:"+IT_name+"  STOCK:"+IT_stock);
-				
-				l5.setFont(new Font("Arial", Font.PLAIN, 30));
-				
-				p.add(l5);
-				
-				}
-				
-				result.close();
-				statement.close();
-				connection.close();
-				
-				
-			} catch (SQLException e) {
-				
-				e.printStackTrace();
-			}
-			
-		}
-		
-		else if(id ==3) {
-			String sql3 = "SELECT * from Other;";
-			try( Connection connection = DriverManager.getConnection(URL3,USERNAME,PASSWORD);
-					PreparedStatement statement = connection.prepareStatement(sql3); ){
-				
-				ResultSet result = statement.executeQuery();
-				
-				while(result.next()) {
-				String Other_id = result.getString(1);
-				String Other_name = result.getString(2);
-				String Other_stock = result.getString(3);
-				
-				JLabel l5 = new JLabel("ID:"+Other_id+"  NAME:"+Other_name+"  STOCK:"+Other_stock);
-				
-				l5.setFont(new Font("Arial", Font.PLAIN, 30));
-				
-				p.add(l5);
-				
-				}
-				
-				result.close();
-				statement.close();
-				connection.close();
-				
-				
-			} catch (SQLException e) {
-				
-				e.printStackTrace();
-			}
-		}
-		
-		else {
-			
-		}
-		
-		
-				
-		
-		
+
 	}
-	
+
 }
-
-
-		
-
-
