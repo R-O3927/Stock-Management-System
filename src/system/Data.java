@@ -17,8 +17,7 @@ import javax.swing.JPanel;
 //継承
 public class Data extends JFrame {
 
-
-	//文の変更不可のものの定義
+	// 文の変更不可のものの定義
 	static final String BOOK_URL = "jdbc:mysql://root@localhost/Book_Data";
 	static final String IT_URL = "jdbc:mysql://root@localhost/IT_Data";
 	static final String OTHER_URL = "jdbc:mysql://root@localhost/Other_Data";
@@ -27,40 +26,36 @@ public class Data extends JFrame {
 
 	public static void main(String[] args) {
 
-		//String型データ　thingStringsの定義
+		// String型データ thingStringsの定義
 		String[] thingStrings = { "本", "IT資産", "その他" };
-		
-		//インスタンスの作成（実体を持たせる）
+
+		// インスタンスの作成（実体を持たせる）
 		JFrame frame = new JFrame("Input Dialog Example");
-		
-		//String型　returnValueの作成及び表示する質問、画面のタイトル、選択肢を設定
+
+		// String型 returnValueの作成及び表示する質問、画面のタイトル、選択肢を設定
 		String returnValue = (String) JOptionPane.showInputDialog(frame, "見たいジャンルを選択して下さい", "在庫管理システム",
 				JOptionPane.QUESTION_MESSAGE, null, thingStrings, thingStrings[0]);
-		
-		//String型　thingの作成　thingにreturnValueの値を代入
+
+		// String型 thingの作成 thingにreturnValueの値を代入
 		String selectThing = returnValue;
 
-		//ジャンルIDの生成と代入
-		int genreId = 0;
-		
-		switch (selectThing) {
+		// ジャンルIDの生成と代入
+		int genreId = 10;
 
-		case "本": // 本を選択した場合
+		if (selectThing == "本") {
 			genreId = 1;
+		}
 
-			break;
-		case "IT資産": // IT資産を選択した場合
+		else if (selectThing == "IT資産") {
 			genreId = 2;
+		}
 
-			break;
-		case "その他": // その他を選択した場合
+		else if (selectThing == "その他") {
 			genreId = 3;
+		}
 
-			break;
-			
-		default:
-			
-			break;
+		else {
+			genreId = 0;
 		}
 
 		Data f = new Data();
@@ -84,40 +79,41 @@ public class Data extends JFrame {
 		// ラベルをパネルに配置
 
 		switch (genreId) {
-		case 0://取り消しを押した場合
-			
+		case 0:// 取り消しを押した場合
+
 			JLabel cancelLabel = new JLabel("You canceled");
-			
-			cancelLabel.setFont(new Font("Arial",Font.PLAIN,30));
-			
+
+			cancelLabel.setFont(new Font("Arial", Font.PLAIN, 30));
+
 			p.add(cancelLabel);
-		
-		
-		case 1: //ジャンルIDが1だった場合
-			
+
+			break;
+
+		case 1: // ジャンルIDが1だった場合
+
 			JLabel bookSelectLabel = new JLabel("Book Data");
-		
+
 			bookSelectLabel.setFont(new Font("Arial", Font.PLAIN, 35));
-			
+
 			p.add(bookSelectLabel);
-			
-			//String型　bookSqlの作成　MySQLのテーブルごと読み込む
+
+			// String型 bookSqlの作成 MySQLのテーブルごと読み込む
 			String bookSql = "SELECT * from book;";
-			
-			//URL,USERNAME,PASSWORDを読み込もうとする
+
+			// URL,USERNAME,PASSWORDを読み込もうとする
 			try (Connection bookConnection = DriverManager.getConnection(BOOK_URL, USERNAME, PASSWORD);
 					PreparedStatement bookStatement = bookConnection.prepareStatement(bookSql);) {
 
-				//指定されたSQL文を実行し、得た値をbookResultに代入
+				// 指定されたSQL文を実行し、得た値をbookResultに代入
 				ResultSet bookResult = bookStatement.executeQuery();
 
-				//SQLの実行結果からデータを取得
+				// SQLの実行結果からデータを取得
 				while (bookResult.next()) {
 					String bookId = bookResult.getString(1);
 					String bookName = bookResult.getString(2);
 					String bookStock = bookResult.getString(3);
 
-					JLabel bookDataLabel = new JLabel("ID:" + bookId + "NAME:" + bookName + "STOCK:" + bookStock);
+					JLabel bookDataLabel = new JLabel("  ID:" +  bookId  + "  NAME:" +  bookName  + "  STOCK:" +  bookStock);
 
 					bookDataLabel.setFont(new Font("Arial", Font.PLAIN, 30));
 
@@ -129,15 +125,15 @@ public class Data extends JFrame {
 				bookConnection.close();
 
 			} catch (SQLException bookE) {
-				
-				//実行したメソッドの時系列一覧を出力
+
+				// 実行したメソッドの時系列一覧を出力
 				bookE.printStackTrace();
 			}
 
 			break;
 
 		case 2:
-			JLabel itLabel = new JLabel("IT Data");
+			JLabel itLabel = new JLabel("IT assets Data");
 			itLabel.setFont(new Font("Arial", Font.PLAIN, 35));
 			p.add(itLabel);
 
@@ -153,7 +149,7 @@ public class Data extends JFrame {
 					String itName = itResult.getString(2);
 					String itStock = itResult.getString(3);
 
-					JLabel itDataLabel = new JLabel("ID:" + itId + "  NAME:" + itName + "  STOCK:" + itStock);
+					JLabel itDataLabel = new JLabel("  ID:" +  itId + "  NAME:" +  itName + "  STOCK:" +  itStock);
 
 					itDataLabel.setFont(new Font("Arial", Font.PLAIN, 30));
 
@@ -189,7 +185,7 @@ public class Data extends JFrame {
 					String otherStock = otherResult.getString(3);
 
 					JLabel otherDataLabel = new JLabel(
-							"ID:" + otherId + "  NAME:" + otherName + "  STOCK:" + otherStock);
+							"  ID:" +  otherId + "  NAME:" +  otherName + "  STOCK:" +  otherStock);
 
 					otherDataLabel.setFont(new Font("Arial", Font.PLAIN, 30));
 
